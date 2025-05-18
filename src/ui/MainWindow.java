@@ -36,22 +36,26 @@ public class MainWindow extends JFrame {
         JButton captureButton1 = new JButton("Capture Screen Area 1");
         JButton liveViewButton1 = new JButton("Live View 1: OFF");
         JToggleButton zoomButton1 = new JToggleButton("1.5x Zoom");
+        JToggleButton luminosityButton1 = new JToggleButton("Luminosity View");
         JPanel leftPanel1 = new JPanel();
         leftPanel1.setLayout(new BorderLayout());
         leftPanel1.add(captureButton1, BorderLayout.NORTH);
         leftPanel1.add(liveViewButton1, BorderLayout.SOUTH);
         leftPanel1.add(zoomButton1, BorderLayout.CENTER);
+        leftPanel1.add(luminosityButton1, BorderLayout.SOUTH);
         vectorscopePanel1 = new VectorscopePanel();
 
         // --- Second Vectorscope Module ---
         JButton captureButton2 = new JButton("Capture Screen Area 2");
         JButton liveViewButton2 = new JButton("Live View 2: OFF");
         JToggleButton zoomButton2 = new JToggleButton("1.5x Zoom");
+        JToggleButton luminosityButton2 = new JToggleButton("Luminosity View");
         JPanel leftPanel2 = new JPanel();
         leftPanel2.setLayout(new BorderLayout());
         leftPanel2.add(captureButton2, BorderLayout.NORTH);
         leftPanel2.add(liveViewButton2, BorderLayout.SOUTH);
         leftPanel2.add(zoomButton2, BorderLayout.CENTER);
+        leftPanel2.add(luminosityButton2, BorderLayout.SOUTH);
         vectorscopePanel2 = new VectorscopePanel();
 
         // --- Reference Point Button ---
@@ -65,9 +69,15 @@ public class MainWindow extends JFrame {
         zoomButton1.setPreferredSize(buttonSize);
         zoomButton1.setMaximumSize(buttonSize);
         zoomButton1.setMinimumSize(buttonSize);
+        luminosityButton1.setPreferredSize(buttonSize);
+        luminosityButton1.setMaximumSize(buttonSize);
+        luminosityButton1.setMinimumSize(buttonSize);
         zoomButton2.setPreferredSize(buttonSize);
         zoomButton2.setMaximumSize(buttonSize);
         zoomButton2.setMinimumSize(buttonSize);
+        luminosityButton2.setPreferredSize(buttonSize);
+        luminosityButton2.setMaximumSize(buttonSize);
+        luminosityButton2.setMinimumSize(buttonSize);
 
         // Stack left panel buttons vertically with minimal space
         leftPanel1.removeAll();
@@ -77,6 +87,10 @@ public class MainWindow extends JFrame {
         box1.add(liveViewButton1);
         box1.add(Box.createVerticalStrut(4));
         box1.add(zoomButton1);
+        box1.add(Box.createVerticalStrut(4));
+        box1.add(luminosityButton1);
+        box1.add(Box.createVerticalStrut(4));
+        box1.add(pixelInfoLabel1);
         leftPanel1.add(box1);
 
         leftPanel2.removeAll();
@@ -86,6 +100,10 @@ public class MainWindow extends JFrame {
         box2.add(liveViewButton2);
         box2.add(Box.createVerticalStrut(4));
         box2.add(zoomButton2);
+        box2.add(Box.createVerticalStrut(4));
+        box2.add(luminosityButton2);
+        box2.add(Box.createVerticalStrut(4));
+        box2.add(pixelInfoLabel2);
         leftPanel2.add(box2);
 
         // --- Layout ---
@@ -115,11 +133,6 @@ public class MainWindow extends JFrame {
         buttonGrid.add(clearReferenceLineButton);
         buttonGrid.add(copyReferenceLineButton);
         mainPanel.add(buttonGrid, BorderLayout.SOUTH);
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new GridLayout(1, 2));
-        infoPanel.add(pixelInfoLabel1);
-        infoPanel.add(pixelInfoLabel2);
-        mainPanel.add(infoPanel, BorderLayout.PAGE_END);
         setContentPane(mainPanel);
 
         // --- Listeners for Module 1 ---
@@ -148,6 +161,9 @@ public class MainWindow extends JFrame {
         zoomButton1.addActionListener(e -> {
             vectorscopePanel1.setZoom(zoomButton1.isSelected() ? 1.5 : 1.0);
         });
+        luminosityButton1.addActionListener(e -> {
+            vectorscopePanel1.setLuminosityView(luminosityButton1.isSelected());
+        });
 
         // --- Listeners for Module 2 ---
         captureButton2.addActionListener(e -> {
@@ -174,6 +190,9 @@ public class MainWindow extends JFrame {
         });
         zoomButton2.addActionListener(e -> {
             vectorscopePanel2.setZoom(zoomButton2.isSelected() ? 1.5 : 1.0);
+        });
+        luminosityButton2.addActionListener(e -> {
+            vectorscopePanel2.setLuminosityView(luminosityButton2.isSelected());
         });
 
         // --- Reference Point Button Listener ---

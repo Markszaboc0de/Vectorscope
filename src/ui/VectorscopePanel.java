@@ -17,6 +17,7 @@ public class VectorscopePanel extends JPanel {
     private Integer clickedPixelR = null, clickedPixelG = null, clickedPixelB = null;
     private Float clickedPixelSat = null;
     private Double clickedPixelLum = null;
+    private boolean luminosityView = false;
 
     public VectorscopePanel() {
         setPreferredSize(new Dimension(250, 210));
@@ -102,6 +103,11 @@ public class VectorscopePanel extends JPanel {
 
     public void setZoom(double zoom) {
         this.zoom = zoom;
+        repaint();
+    }
+
+    public void setLuminosityView(boolean value) {
+        this.luminosityView = value;
         repaint();
     }
 
@@ -233,8 +239,21 @@ public class VectorscopePanel extends JPanel {
                     double pointRadius = sat * plotRadius;
                     int px = (int) (cx + pointRadius * Math.cos(angle));
                     int py = (int) (cy + pointRadius * Math.sin(angle));
-                    g2.setColor(new Color(r, gC, b));
-                    g2.fillRect(px, py, 2, 2);
+                    if (luminosityView) {
+                        int lum = (int)(0.2126 * r + 0.7152 * gC + 0.0722 * b);
+                        lum = Math.max(0, Math.min(255, lum));
+                        Color gray = new Color(lum, lum, lum);
+                        g2.setColor(gray);
+                        g2.fillRect(px, py, 3, 3);
+                    } else {
+                        Color plotColor = new Color(r, gC, b);
+                        int brightness = (r + gC + b) / 3;
+                        if (brightness < 80) {
+                            plotColor = plotColor.brighter().brighter();
+                        }
+                        g2.setColor(plotColor);
+                        g2.fillRect(px, py, 3, 3);
+                    }
                 }
             }
         }
