@@ -3,6 +3,10 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 import capture.ScreenCaptureData;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import javax.swing.Timer;
 
 public class VectorscopePanel extends JPanel {
     private ScreenCaptureData data;
@@ -10,10 +14,21 @@ public class VectorscopePanel extends JPanel {
     private Double referenceRadius = null;
     private boolean referenceIsLine = false;
     private double zoom = 1.0;
+    private Integer clickedPixelR = null, clickedPixelG = null, clickedPixelB = null;
+    private Float clickedPixelSat = null;
+    private Double clickedPixelLum = null;
 
     public VectorscopePanel() {
         setPreferredSize(new Dimension(250, 210));
-        setOpaque(false);
+        setOpaque(true);
+        setBackground(new Color(241, 241, 241)); // dark background
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleClick(e.getX(), e.getY());
+            }
+        });
     }
 
     public void setScreenCaptureData(ScreenCaptureData data) {
@@ -90,6 +105,45 @@ public class VectorscopePanel extends JPanel {
         repaint();
     }
 
+    private void handleClick(int mx, int my) {
+        int w = getWidth();
+        int h = getHeight();
+        int radius = Math.min(w, h) / 2 - 20;
+        int cx = w / 2;
+        int cy = h / 2;
+        int plotRadius = (int)(radius * zoom);
+        double dx = mx - cx;
+        double dy = my - cy;
+        double dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > plotRadius || data == null) {
+            clickedPixelR = clickedPixelG = clickedPixelB = null;
+            clickedPixelSat = null;
+            clickedPixelLum = null;
+            repaint();
+            return;
+        }
+        double angle = Math.atan2(dy, dx);
+        double sat = dist / plotRadius;
+        float hue = (float)(((angle + Math.PI/2) / (2 * Math.PI)) % 1.0);
+        float bri = 1.0f;
+        int rgb = Color.HSBtoRGB(hue, (float)sat, bri);
+        int r = (rgb >> 16) & 0xff;
+        int gC = (rgb >> 8) & 0xff;
+        int b = rgb & 0xff;
+        double luminance = 0.2126 * r + 0.7152 * gC + 0.0722 * b;
+        clickedPixelR = r;
+        clickedPixelG = gC;
+        clickedPixelB = b;
+        clickedPixelSat = (float)sat;
+        clickedPixelLum = luminance;
+        repaint();
+    }
+
+    public String getClickedPixelInfo() {
+        if (clickedPixelR == null) return null;
+        return String.format("[Pixel] RGB: (%d, %d, %d)  Sat: %.2f  Lum: %.1f", clickedPixelR, clickedPixelG, clickedPixelB, clickedPixelSat, clickedPixelLum);
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -104,9 +158,9 @@ public class VectorscopePanel extends JPanel {
         int circleRadius = (int) (radius * 1.1); // 10% bigger for the circle only
 
         // Draw circle (10% bigger)
-        g2.setColor(Color.DARK_GRAY);
-        g2.setStroke(new BasicStroke(2));
-        g2.drawOval(cx - circleRadius, cy - circleRadius, 2 * circleRadius, 2 * circleRadius);
+        // g2.setColor(Color.DARK_GRAY);
+        // g2.setStroke(new BasicStroke(2));
+        // g2.drawOval(cx - circleRadius, cy - circleRadius, 2 * circleRadius, 2 * circleRadius);
 
         // Place R, G, B letters (G and B swapped)
         Color[] colors = {Color.RED, Color.BLUE, Color.GREEN};
@@ -193,23 +247,12 @@ public class VectorscopePanel extends JPanel {
                 g2.setColor(Color.MAGENTA);
                 g2.setStroke(new BasicStroke(2.5f));
                 g2.drawLine(cx, cy, px, py);
-                // Calculate and display endpoint info
-                float hue = (float)(((referenceAngle + Math.PI/2) / (2 * Math.PI)) % 1.0);
-                float sat = referenceRadius.floatValue();
-                float bri = 1.0f;
-                int rgb = Color.HSBtoRGB(hue, sat, bri);
-                int r = (rgb >> 16) & 0xff;
-                int gC = (rgb >> 8) & 0xff;
-                int b = rgb & 0xff;
-                double luminance = 0.2126 * r + 0.7152 * gC + 0.0722 * b;
-                String info = String.format("RGB: (%d, %d, %d)  Sat: %.2f  Lum: %.1f", r, gC, b, sat, luminance);
-                g2.setColor(Color.BLACK);
-                g2.setFont(new Font("Arial", Font.PLAIN, 12));
-                g2.drawString(info, cx - plotRadius, cy + plotRadius + 20);
             } else {
-                g2.setColor(Color.RED);
+                g2.setColor(Color.ORANGE);
                 g2.fillOval(px - 3, py - 3, 6, 6);
             }
         }
+
+        // (No info below scope; info will be shown by parent module)
     }
 } 

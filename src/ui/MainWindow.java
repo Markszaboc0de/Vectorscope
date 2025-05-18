@@ -8,6 +8,7 @@ import capture.ScreenCaptureData;
 import capture.ScreenCaptureUtils;
 import java.awt.Rectangle;
 import javax.swing.Timer;
+import javax.swing.Box;
 
 public class MainWindow extends JFrame {
     private VectorscopePanel vectorscopePanel1;
@@ -21,6 +22,8 @@ public class MainWindow extends JFrame {
     private boolean referencePointMode = false;
     private Double referenceAngle = null;
     private Double referenceRadius = null;
+    private JLabel pixelInfoLabel1 = new JLabel(" ");
+    private JLabel pixelInfoLabel2 = new JLabel(" ");
 
     public MainWindow() {
         setTitle("Screen Capture Tool");
@@ -57,6 +60,34 @@ public class MainWindow extends JFrame {
         JButton clearReferenceLineButton = new JButton("Clear Reference Line");
         JButton copyReferenceLineButton = new JButton("Copy Reference Line");
 
+        // Set zoom buttons to same size as referencePointButton
+        Dimension buttonSize = referencePointButton.getPreferredSize();
+        zoomButton1.setPreferredSize(buttonSize);
+        zoomButton1.setMaximumSize(buttonSize);
+        zoomButton1.setMinimumSize(buttonSize);
+        zoomButton2.setPreferredSize(buttonSize);
+        zoomButton2.setMaximumSize(buttonSize);
+        zoomButton2.setMinimumSize(buttonSize);
+
+        // Stack left panel buttons vertically with minimal space
+        leftPanel1.removeAll();
+        Box box1 = Box.createVerticalBox();
+        box1.add(captureButton1);
+        box1.add(Box.createVerticalStrut(4));
+        box1.add(liveViewButton1);
+        box1.add(Box.createVerticalStrut(4));
+        box1.add(zoomButton1);
+        leftPanel1.add(box1);
+
+        leftPanel2.removeAll();
+        Box box2 = Box.createVerticalBox();
+        box2.add(captureButton2);
+        box2.add(Box.createVerticalStrut(4));
+        box2.add(liveViewButton2);
+        box2.add(Box.createVerticalStrut(4));
+        box2.add(zoomButton2);
+        leftPanel2.add(box2);
+
         // --- Layout ---
         JPanel topModule = new JPanel(new GridBagLayout());
         GridBagConstraints gbc1 = new GridBagConstraints();
@@ -84,6 +115,11 @@ public class MainWindow extends JFrame {
         buttonGrid.add(clearReferenceLineButton);
         buttonGrid.add(copyReferenceLineButton);
         mainPanel.add(buttonGrid, BorderLayout.SOUTH);
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new GridLayout(1, 2));
+        infoPanel.add(pixelInfoLabel1);
+        infoPanel.add(pixelInfoLabel2);
+        mainPanel.add(infoPanel, BorderLayout.PAGE_END);
         setContentPane(mainPanel);
 
         // --- Listeners for Module 1 ---
@@ -180,6 +216,9 @@ public class MainWindow extends JFrame {
                     referencePointMode = false;
                     referencePointButton.setText("Set Reference Point");
                 }
+                // Always update pixel info label on click
+                String info = vectorscopePanel1.getClickedPixelInfo();
+                pixelInfoLabel1.setText(info != null ? info : " ");
             }
         });
         vectorscopePanel2.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -189,6 +228,9 @@ public class MainWindow extends JFrame {
                     referencePointMode = false;
                     referencePointButton.setText("Set Reference Point");
                 }
+                // Always update pixel info label on click
+                String info = vectorscopePanel2.getClickedPixelInfo();
+                pixelInfoLabel2.setText(info != null ? info : " ");
             }
         });
     }
